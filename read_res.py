@@ -26,7 +26,10 @@ for file_res in os.listdir("results"):
                 continue
             if colname not in use_cols:
                 use_cols.append(colname)
-            dict_vals[row_names[ix]][colname] = float(str(file_res_open[colname][ix]).replace(",", "."))
+            if "," in str(file_res_open[colname][ix]):
+                dict_vals[row_names[ix]][colname] = float(str(file_res_open[colname][ix]).replace(",", "."))
+            else:
+                dict_vals[row_names[ix]][colname] = int(str(file_res_open[colname][ix]))
 
     print(dict_vals)
  
@@ -37,23 +40,23 @@ for file_res in os.listdir("results"):
             numrows += 1
 
     plt.figure(figsize = (10, 5), dpi = 80)
-    plt.rcParams.update({'font.size': 22}) 
+    plt.rcParams.update({'font.size': 16}) 
     for ix_row in range(len(dict_vals.keys())):
         rowname = list(dict_vals.keys())[ix_row] 
         if "size" in rowname or "ratio" in rowname:
             x_vals = [i * (numrows + 1) + ix_row - int(numrows // 2) for i in range(len(list(dict_vals[rowname].values())))] 
             plt.bar(x_vals, list(dict_vals[rowname].values()), label = rowname, zorder = 2)
             for i in range(len(x_vals)):
-                if i == 0:
-                    yoff = 0.2 * max(list(dict_vals[rowname].values()))
-                else:
-                    yoff = 35
+                yoff = 0.06 * max(list(dict_vals[rowname].values()))
                 if list(dict_vals[rowname].values())[i] < 0:
                     yoff = 0.7 * max(list(dict_vals[rowname].values()))
                 add_str = " " + rowname.split("(")[-1].replace(")", "")
+                x_off = len(str(list(dict_vals[rowname].values())[i]) + add_str) / 10
+                if "before" in rowname:
+                    x_off = len(str(list(dict_vals[rowname].values())[i]) + add_str) / 7
                 if "%" in add_str:
                     add_str = "%"
-                plt.text(x_vals[i] - 1.65, list(dict_vals[rowname].values())[i] + yoff, str(list(dict_vals[rowname].values())[i]) + add_str)
+                plt.text(x_vals[i] - x_off, list(dict_vals[rowname].values())[i] + yoff, str(list(dict_vals[rowname].values())[i]) + add_str)
     
     plt.xticks([i * (numrows + 1) for i in range(len(list(dict_vals[rowname].values())))], use_cols)
 
@@ -68,10 +71,10 @@ for file_res in os.listdir("results"):
         
     plt.title(title)
     plt.xlim(-2.7, 10)
-    plt.ylim(-350, 1000)
+    plt.ylim(-350, 1050)
     plt.xlabel("Image size")
     plt.grid(axis = 'y')  
-    plt.legend(ncol = 1, loc = "upper left")
+    plt.legend(ncol = 3, loc = "upper left")
     plt.savefig("results/" + file_res.replace(".csv", "_") + "size_comparison.png", bbox_inches = "tight")
     plt.close()
     
@@ -79,13 +82,13 @@ for file_res in os.listdir("results"):
         rowname = list(dict_vals.keys())[ix_row] 
         if "time" in rowname:
             plt.figure(figsize = (10, 5), dpi = 80)
-            plt.rcParams.update({'font.size': 22}) 
+            plt.rcParams.update({'font.size': 16}) 
             x_vals = [i for i in range(len(list(dict_vals[rowname].values())))] 
-            plt.bar(x_vals, list(dict_vals[rowname].values()), label = rowname, zorder = 2)
+            plt.bar(x_vals, list(dict_vals[rowname].values()), label = rowname, zorder = 2, width = 0.5)
             for i in range(len(x_vals)):
                 yoff = 0.02 * max(list(dict_vals[rowname].values()))
                 add_str = " " + rowname.split("(")[-1].replace(")", "")
-                plt.text(x_vals[i] - 0.3, list(dict_vals[rowname].values())[i] + yoff, str(list(dict_vals[rowname].values())[i]) + add_str)
+                plt.text(x_vals[i] - len(str(list(dict_vals[rowname].values())[i]) + add_str) / 40, list(dict_vals[rowname].values())[i] + yoff, str(list(dict_vals[rowname].values())[i]) + add_str)
     
             plt.xticks([i for i in range(len(list(dict_vals[rowname].values())))], use_cols)
 
@@ -98,6 +101,7 @@ for file_res in os.listdir("results"):
             if "with_" not in file_res:
                 title += "No BWT"
                 
+            plt.ylabel(rowname.capitalize())
             plt.title(title)
             plt.ylim(0, max(list(dict_vals[rowname].values())) * 1.1)
             plt.xlabel("Image size")
@@ -112,13 +116,13 @@ for file_res in os.listdir("results"):
         print(s, cs_vals[s])
 
     plt.figure(figsize = (10, 5), dpi = 80)
-    plt.rcParams.update({'font.size': 22}) 
+    plt.rcParams.update({'font.size': 16}) 
     x_vals = [i for i in range(len(list(cs_vals.values())))] 
-    plt.bar(x_vals, list(cs_vals.values()), label = rowname, zorder = 2)
+    plt.bar(x_vals, list(cs_vals.values()), label = rowname, zorder = 2, width = 0.5)
     for i in range(len(x_vals)):
         yoff = 0.02 * max(list(cs_vals.values()))
         add_str = " kB/s"
-        plt.text(x_vals[i] - 0.3, list(cs_vals.values())[i] + yoff, str(list(cs_vals.values())[i]) + add_str)
+        plt.text(x_vals[i] - len(str(list(cs_vals.values())[i]) + add_str) / 50, list(cs_vals.values())[i] + yoff, str(list(cs_vals.values())[i]) + add_str)
 
     plt.xticks([i for i in range(len(cs_vals.values()))], use_cols)
 
@@ -131,6 +135,7 @@ for file_res in os.listdir("results"):
     if "with_" not in file_res:
         title += "No BWT"
         
+    plt.ylabel("Compression speed (kB/s)")
     plt.title(title)
     plt.ylim(0, max(list(cs_vals.values())) * 1.1)
     plt.xlabel("Image size")
@@ -145,13 +150,13 @@ for file_res in os.listdir("results"):
         print(s, ds_vals[s])
 
     plt.figure(figsize = (10, 5), dpi = 80)
-    plt.rcParams.update({'font.size': 22}) 
+    plt.rcParams.update({'font.size': 16}) 
     x_vals = [i for i in range(len(list(ds_vals.values())))] 
-    plt.bar(x_vals, list(ds_vals.values()), label = rowname, zorder = 2)
+    plt.bar(x_vals, list(ds_vals.values()), label = rowname, zorder = 2, width = 0.5)
     for i in range(len(x_vals)):
         yoff = 0.02 * max(list(ds_vals.values()))
         add_str = " kB/s"
-        plt.text(x_vals[i] - 0.3, list(ds_vals.values())[i] + yoff, str(list(ds_vals.values())[i]) + add_str)
+        plt.text(x_vals[i] - len(str(list(ds_vals.values())[i]) + add_str) / 50, list(ds_vals.values())[i] + yoff, str(list(ds_vals.values())[i]) + add_str)
 
     plt.xticks([i for i in range(len(ds_vals.values()))], use_cols)
 
@@ -164,6 +169,7 @@ for file_res in os.listdir("results"):
     if "with_" not in file_res:
         title += "No BWT"
         
+    plt.ylabel("Decompression speed (kB/s)")
     plt.title(title)
     plt.ylim(0, max(list(ds_vals.values())) * 1.1)
     plt.xlabel("Image size")
