@@ -1,0 +1,6 @@
+var;small;medium;large
+size before (kB);21,75;96,39;280,5
+size after (kB);67,43;267,54;716,88  
+ratio (%);-210,1;-177,54;-155,57
+compression time (ms);208;355;652 
+decompression time (ms);194;290;635

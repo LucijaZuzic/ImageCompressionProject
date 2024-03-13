@@ -67,7 +67,9 @@ for file_res in os.listdir("results"):
     if "smaller" in file_res:
         title += "Smaller buffer"
     if "with_" not in file_res:
-        title += "No BWT"
+        title += " without the BWT algorithm"
+    else:
+        title += " with the BWT algorithm"
         
     plt.title(title)
     plt.xlim(-2.7, 10)
@@ -76,6 +78,53 @@ for file_res in os.listdir("results"):
     plt.grid(axis = 'y')  
     plt.legend(ncol = 3, loc = "upper left")
     plt.savefig("results/" + file_res.replace(".csv", "_") + "size_comparison.png", bbox_inches = "tight")
+    plt.close()
+    
+    numrows = 0
+    for ix_row in range(len(dict_vals.keys())):
+        rowname = list(dict_vals.keys())[ix_row]  
+        if "time" in rowname:
+            numrows += 1
+
+    plt.figure(figsize = (10, 5), dpi = 80)
+    plt.rcParams.update({'font.size': 16}) 
+    for ix_row in range(len(dict_vals.keys())):
+        rowname = list(dict_vals.keys())[ix_row] 
+        if "time" in rowname:
+            x_vals = [i * (numrows + 1) + ix_row - int(numrows // 2) for i in range(len(list(dict_vals[rowname].values())))] 
+            plt.bar(x_vals, list(dict_vals[rowname].values()), label = rowname, zorder = 2)
+            for i in range(len(x_vals)):
+                yoff = 0.06 * max(list(dict_vals[rowname].values()))
+                if list(dict_vals[rowname].values())[i] < 0:
+                    yoff = 0.7 * max(list(dict_vals[rowname].values()))
+                add_str = " " + rowname.split("(")[-1].replace(")", "")
+                x_off = len(str(list(dict_vals[rowname].values())[i]) + add_str) / 10
+                if "before" in rowname:
+                    x_off = len(str(list(dict_vals[rowname].values())[i]) + add_str) / 7
+                if "%" in add_str:
+                    add_str = "%"
+                plt.text(x_vals[i] - x_off, list(dict_vals[rowname].values())[i] + yoff, str(list(dict_vals[rowname].values())[i]) + add_str)
+    
+    plt.xticks([i * (numrows + 1) for i in range(len(list(dict_vals[rowname].values())))], use_cols)
+
+    title = "Compression and decompression time\n"
+
+    if "larger" in file_res:
+        title += "Larger buffer"
+    if "smaller" in file_res:
+        title += "Smaller buffer"
+    if "with_" not in file_res:
+        title += " without the BWT algorithm"
+    else:
+        title += " with the BWT algorithm"
+        
+    plt.title(title)
+    plt.xlim(-2.7, 10)
+    plt.ylim(-350, 1050)
+    plt.xlabel("Image size")
+    plt.grid(axis = 'y')  
+    plt.legend(ncol = 3, loc = "upper left")
+    plt.savefig("results/" + file_res.replace(".csv", "_") + "compression_decompression_time.png", bbox_inches = "tight")
     plt.close()
     
     for ix_row in range(len(dict_vals.keys())):
@@ -99,7 +148,9 @@ for file_res in os.listdir("results"):
             if "smaller" in file_res:
                 title += "Smaller buffer"
             if "with_" not in file_res:
-                title += "No BWT"
+                title += " without the BWT algorithm"
+            else:
+                title += " with the BWT algorithm"
                 
             plt.ylabel(rowname.capitalize())
             plt.title(title)
@@ -133,7 +184,9 @@ for file_res in os.listdir("results"):
     if "smaller" in file_res:
         title += "Smaller buffer"
     if "with_" not in file_res:
-        title += "No BWT"
+        title += " without the BWT algorithm"
+    else:
+        title += " with the BWT algorithm"
         
     plt.ylabel("Compression speed (kB/s)")
     plt.title(title)
@@ -167,7 +220,9 @@ for file_res in os.listdir("results"):
     if "smaller" in file_res:
         title += "Smaller buffer"
     if "with_" not in file_res:
-        title += "No BWT"
+        title += " without the BWT algorithm"
+    else:
+        title += " with the BWT algorithm"
         
     plt.ylabel("Decompression speed (kB/s)")
     plt.title(title)
